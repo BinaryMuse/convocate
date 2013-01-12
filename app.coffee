@@ -15,26 +15,6 @@ server = http.createServer(app)
 io = sio.listen(server)
 sessionStore = new MemoryStore()
 
-io.set 'authorization', (handshakeData, accept) ->
-  try
-    if handshakeData.headers.cookie
-      handshakeCookie = cookie.parse(handshakeData.headers.cookie)
-      sessionId = connect.utils.parseSignedCookie(handshakeCookie['convocate.sid'], 'convocateisawesome')
-
-      sessionStore.get sessionId, (err, session) ->
-        if err? || !session
-          accept 'Could not get session from session ID', false
-        else
-          if session.authenticated
-            handshakeData.session = session
-            accept null, true
-          else
-            accept 'Not authenticated', false
-    else
-      accept 'No cookie transmitted', false
-  catch e
-    accept 'Uncaught exception while authorizing', false
-
 app.configure ->
   app.set 'port', process.env.PORT || '3000'
   app.set 'views', "#{__dirname}/views"
@@ -55,20 +35,65 @@ app.configure 'development', ->
       output: 'bundle.js'
   app.use express.errorHandler()
 
+usernames = {}
+
 app.get '/', (req, res) ->
   res.render 'index'
 
 app.get '/login', (req, res) ->
-  req.session.authenticated = true
-  res.redirect '/'
+  if req.session.authenticated
+    res.redirect '/'
+  else
+    res.render 'login'
+
+app.post '/login', (req, res) ->
+  if req.body.username && req.body.username not in Object.keys(usernames)
+    req.session.authenticated = true
+    req.session.username = req.body.username
+    res.redirect '/'
 
 app.get '/logout', (req, res) ->
-  req.session.authenticated = false
-  res.redirect '/'
+  req.session.destroy ->
+    res.redirect '/'
 
 server.listen app.get('port'), ->
   console.log "Server running on port #{app.get('port')}"
 
-setInterval (->
-  io.sockets.emit 'data', "#{Math.random()}"
-), 1000
+io.set 'authorization', (handshakeData, accept) ->
+  try
+    if handshakeData.headers.cookie
+      handshakeCookie = cookie.parse(handshakeData.headers.cookie)
+      sessionId = connect.utils.parseSignedCookie(handshakeCookie['convocate.sid'], 'convocateisawesome')
+
+      sessionStore.get sessionId, (err, session) ->
+        if err? || !session
+          accept 'Could not get session from session ID', false
+        else
+          if session.authenticated
+            handshakeData.session = session
+            accept null, true
+          else
+            accept 'Not authenticated', false
+    else
+      accept 'No cookie transmitted', false
+  catch e
+    accept 'Uncaught exception while authorizing', false
+
+io.sockets.on 'connection', (socket) ->
+  session = socket.handshake.session
+  username = session.username
+  usernames[username] = true
+
+  socket.broadcast.emit 'room:join', username
+  socket.emit 'room:people',
+    identity: username
+    users: Object.keys(usernames)
+
+  socket.on 'room:chat', (chat) ->
+    socket.broadcast.emit 'room:chat',
+      username: username
+      message: chat
+
+  socket.on 'disconnect', ->
+    delete usernames[username]
+    io.sockets.emit 'room:leave', username

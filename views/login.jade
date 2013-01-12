@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  form(method='post', action='/login')
+    |Username:&nbsp;
+    input(type='text', name='username', size='30')
+    input(type='submit', value='Login')

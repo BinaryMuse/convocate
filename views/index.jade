@@ -2,6 +2,21 @@ extends layout
 
 block content
   div(ng-controller='TestController')
-    h1 OH BOY HOWDY
-    ul
-      li(ng-repeat="item in data") {{item}}
+    div(ng-hide="unauthenticated || connected")
+      p Connecting...
+    div(ng-show="unauthenticated")
+      p
+        | You are not authenticated.&nbsp;
+        a(href='/login') Log in.
+    div(ng-show="connected")
+      div(style="width: 500px; height: 300px; border: 1px solid black; float: left;")
+        div(ng-repeat="chat in chats")
+          strong {{chat.username}}&nbsp;
+          {{chat.message}}
+      div(style="width: 150px; height: 300px; border: 1px solid black; float: left;")
+        div(ng-repeat="user in users")
+          span(ng-class="{bold: user == username}") {{user}}
+      form(ng-submit="submitMessage()", style="clear: left;")
+        | Chat:&nbsp;
+        input(ng-model="message", size="100")
+        input(type='submit') Send
