@@ -7,6 +7,7 @@ express = require 'express'
 webpack = require 'webpack'
 webpackDev = require 'webpack-dev-middleware'
 MemoryStore = express.session.MemoryStore
+Chatroom = require './lib/chatroom'
 
 process.env.NODE_ENV ?= 'development'
 
@@ -14,6 +15,11 @@ app = express()
 server = http.createServer(app)
 io = sio.listen(server)
 sessionStore = new MemoryStore()
+redisClient = redis.createClient()
+redisClient.on 'error', (err) ->
+  console.error "Error in redisClient:"
+  console.error err
+chatroom = new Chatroom(redisClient, io)
 
 app.configure ->
   app.set 'port', process.env.PORT || '3000'
@@ -35,13 +41,14 @@ app.configure 'development', ->
       output: 'bundle.js'
   app.use express.errorHandler()
 
-usernames = {}
-
 app.get '/template', (req, res) ->
   res.render 'template'
 
 app.get '/', (req, res) ->
-  res.render 'index'
+  if req.session.authenticated
+    res.render 'index'
+  else
+    res.redirect '/login'
 
 app.get '/login', (req, res) ->
   if req.session.authenticated
@@ -50,10 +57,12 @@ app.get '/login', (req, res) ->
     res.render 'login'
 
 app.post '/login', (req, res) ->
-  if req.body.username && req.body.username not in Object.keys(usernames)
+  if req.body.username && req.body.username not in chatroom.members
     req.session.authenticated = true
     req.session.username = req.body.username
     res.redirect '/'
+  else
+    res.redirect '/login'
 
 app.get '/logout', (req, res) ->
   req.session.destroy ->
@@ -81,22 +90,3 @@ io.set 'authorization', (handshakeData, accept) ->
       accept 'No cookie transmitted', false
   catch e
     accept 'Uncaught exception while authorizing', false
-
-io.sockets.on 'connection', (socket) ->
-  session = socket.handshake.session
-  username = session.username
-  usernames[username] = true
-
-  socket.broadcast.emit 'room:join', username
-  socket.emit 'room:people',
-    identity: username
-    users: Object.keys(usernames)
-
-  socket.on 'room:chat', (chat) ->
-    socket.broadcast.emit 'room:chat',
-      username: username
-      message: chat
-
-  socket.on 'disconnect', ->
-    delete usernames[username]
-    io.sockets.emit 'room:leave', username
