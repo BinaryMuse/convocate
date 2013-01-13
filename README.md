@@ -1,7 +1,7 @@
 Convocate
 =========
 
-Convocate is an open source, real time chat application that runs in the browser. It works great with [Fluid](http://fluidapp.com/).
+Convocate is an open source, real time chat application that runs in the browser. It works great with [Fluid](http://fluidapp.com/). The server runs on Node.js.
 
 ![Convocate Concept Screenshot](https://raw.github.com/BinaryMuse/convocate/master/preview.png)
 
