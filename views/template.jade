@@ -1,0 +1,77 @@
+extends layout
+
+block content
+  div.settings-panel
+    | Logged in as&nbsp;
+    a(href='#') Brandon Tilley
+    | &nbsp;|&nbsp;
+    a(href='#') Settings
+    | &nbsp;|&nbsp;
+    a(href='#') Logout
+  h1.title Grockit
+
+  div.chat-container
+    ul.tab-container.tabs
+      li.tab General
+      li.tab.active Developers
+      li.tab Product
+    div.main-wrapper
+      div.tab-content.main-container
+        p.topic Ready to bro down and crush some code!?
+        div.chat-lines
+          p.time 10:30 AM
+          p.entrance &rarr; Shane W. joined the room.
+          p.message
+            span.name Shane W.
+            span.line Yo, whassup
+          p.message
+            span.name.me Brandon T.
+            span.line Sup, Shane
+          p.message
+            span.name Mr. Long Name Here
+            span.line Sup, Shane
+          p.time 10:35 AM
+          p.message
+            span.name Mr. Long Name Here
+            span.line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line
+          p.entrance &larr; Mr. Long Name Here left the room.
+          p.message
+            span.name.me Brandon T.
+            span.line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line Here is a long line
+          p.time 10:40 AM
+          p.entrance &rarr; Mike H. joined the room.
+          p.message
+            span.name Mike H.
+            span.line WOOOOOOO
+          p.time 10:45 AM
+          p.message
+            span.name Brandon T.
+            span.line Hey!
+          p.message
+            span.name Brandon T.
+            span.line No having fun!
+          p.message
+            span.name Mike H.
+            span.line
+              img(src='http://whateverblog.dallasnews.com/files/2012/12/Grumpy-Cat-MEME-01.jpg')
+    div.users-container
+      p Users
+      ul.user-list
+        li.present
+          img.status-orb(src="/images/orb_green.png")
+          strong Brandon T.&nbsp;
+          span.status ( ╯°□°）╯︵ buoןɟ
+        li.idle
+          img.status-orb(src="/images/orb_yellow.png")
+          | Shane W.
+        li.present
+          img.status-orb(src="/images/orb_green.png")
+          | Mike H.
+        li.away
+          img.status-orb(src="/images/orb_red.png")
+          | Tiem S.&nbsp;
+          span.status grabbing lunch
+      p Files
+    div.input-panel
+      textarea.input(placeholder='Say something...')
+      button Send

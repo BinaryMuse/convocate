@@ -37,6 +37,9 @@ app.configure 'development', ->
 
 usernames = {}
 
+app.get '/template', (req, res) ->
+  res.render 'template'
+
 app.get '/', (req, res) ->
   res.render 'index'
 
