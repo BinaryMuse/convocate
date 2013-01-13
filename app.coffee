@@ -7,6 +7,7 @@ express = require 'express'
 webpack = require 'webpack'
 webpackDev = require 'webpack-dev-middleware'
 MemoryStore = express.session.MemoryStore
+redisConfig = require './config/redis'
 Chatroom = require './lib/chatroom'
 
 process.env.NODE_ENV ?= 'development'
@@ -15,7 +16,8 @@ app = express()
 server = http.createServer(app)
 io = sio.listen(server)
 sessionStore = new MemoryStore()
-redisClient = redis.createClient()
+redisClient = redis.createClient(redisConfig.port, redisConfig.host)
+redisClient.select(redisConfig.database) if redisConfig.database?
 redisClient.on 'error', (err) ->
   console.error "Error in redisClient:"
   console.error err
