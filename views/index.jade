@@ -1,15 +1,15 @@
 extends layout
 
 block content
-  div.settings-panel
-    | Logged in as&nbsp;
-    a(href='#') Brandon Tilley
-    | &nbsp;|&nbsp;
-    a(href='#') Settings
-    | &nbsp;|&nbsp;
-    a(href='#') Logout
-
   div.main-container(ng-controller='ChatController')
+    div.settings-panel
+      | Logged in as&nbsp;
+      a(href='#') {{username}}
+      | &nbsp;|&nbsp;
+      a(href='#') Settings
+      | &nbsp;|&nbsp;
+      a(href='/logout') Logout
+
     div.top-panel
       h1.title Grockit
     div.main-panel
