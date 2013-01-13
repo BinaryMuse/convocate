@@ -3,7 +3,7 @@ angular = require 'angular'
 
 app = angular.module 'convocate', []
 
-app.controller 'TestController', ($scope) ->
+app.controller 'ChatController', ['$scope', ($scope) ->
   $scope.connected = false
   $scope.unauthenticated = false
 
@@ -23,13 +23,13 @@ app.controller 'TestController', ($scope) ->
 
   socket.on 'room:join', (username) ->
     $scope.users.push username
-    $scope.chats.push username: username, message: 'joined the room'
+    $scope.chats.push type: 'entrance', username: username
     $scope.$apply()
 
   socket.on 'room:leave', (username) ->
     index = $scope.users.indexOf(username)
     $scope.users.splice(index, 1) if index != -1
-    $scope.chats.push username: username, message: 'left the room'
+    $scope.chats.push type: 'exit', username: username
     $scope.$apply()
 
   socket.on 'room:chat', (chat) ->
@@ -47,3 +47,21 @@ app.controller 'TestController', ($scope) ->
       username: $scope.username
       message: $scope.message
     $scope.message = ''
+]
+
+app.directive 'editbox', ->
+  link: (scope, elem, attrs) ->
+    elem.on 'keydown', (evt) ->
+      if evt.which == 13 && !evt.shiftKey
+        evt.preventDefault()
+        scope.$apply attrs.editboxEnter
+
+app.filter 'sanitize', ->
+  (str) ->
+    return "" unless str?
+    str.replace(/</g, '&lt;')
+
+app.filter 'nl2br', ->
+  (str) ->
+    return "" unless str?
+    str.replace(/(\n)|(&#10;)/g, "<br>\n")

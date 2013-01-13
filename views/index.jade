@@ -1,22 +1,46 @@
 extends layout
 
 block content
-  div(ng-controller='TestController')
-    div(ng-hide="unauthenticated || connected")
-      p Connecting...
-    div(ng-show="unauthenticated")
-      p
-        | You are not authenticated.&nbsp;
-        a(href='/login') Log in.
-    div(ng-show="connected")
-      div(style="width: 500px; height: 300px; border: 1px solid black; float: left;")
-        div(ng-repeat="chat in chats")
-          strong {{chat.username}}&nbsp;
-          {{chat.message}}
-      div(style="width: 150px; height: 300px; border: 1px solid black; float: left;")
-        div(ng-repeat="user in users")
-          span(ng-class="{bold: user == username}") {{user}}
-      form(ng-submit="submitMessage()", style="clear: left;")
-        | Chat:&nbsp;
-        input(ng-model="message", size="100")
-        input(type='submit') Send
+  div.settings-panel
+    | Logged in as&nbsp;
+    a(href='#') Brandon Tilley
+    | &nbsp;|&nbsp;
+    a(href='#') Settings
+    | &nbsp;|&nbsp;
+    a(href='#') Logout
+
+  div.main-container(ng-controller='ChatController')
+    div.top-panel
+      h1.title Grockit
+    div.main-panel
+      ul.tab-container.tabs
+        li.tab Lobby
+        li.tab General
+        li.tab.active Developers
+        li.tab Product
+      div.tab-content
+        p.topic You ready to bro down and crush some code!?
+        div.chat
+          span(ng-repeat="chat in chats", ng-switch="chat.type", ng-class-even="'alt'")
+            p.time(ng-switch-when="time") {{chat.time}}
+            p.entrance(ng-switch-when="entrance") &rarr; {{chat.username}} joined the room.
+            p.entrance(ng-switch-when="exit") &larr; {{chat.username}} left the room.
+            p.message(ng-switch-default)
+              span.name(ng-class="{me: chat.username == username}") {{chat.username}}
+              span.line(ng-bind-html-unsafe='chat.message | sanitize | nl2br')
+    div.side-panel
+      p.section Users
+      ul.user-list
+        li.present
+          div.name
+            img.status-orb(src="/images/orb_green.png")
+            strong {{username}}
+        li.present(ng-repeat="user in users", ng-show="user != username")
+          div.name
+            img.status-orb(src="/images/orb_green.png")
+            span {{user}}
+      p.section Files
+    div.bottom-panel
+      form(ng-submit="submitMessage()")
+        textarea.input(editbox, editbox-enter="submitMessage()", ng-model="message", placeholder='Say something...')
+        button Send
