@@ -43,9 +43,6 @@ app.configure 'development', ->
       output: 'bundle.js'
   app.use express.errorHandler()
 
-app.get '/template', (req, res) ->
-  res.render 'template'
-
 app.get '/', (req, res) ->
   if req.session.authenticated
     res.render 'index'
