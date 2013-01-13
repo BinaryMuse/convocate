@@ -8,17 +8,18 @@ block content
     a(href='#') Settings
     | &nbsp;|&nbsp;
     a(href='#') Logout
-  h1.title Grockit
 
-  div.chat-container
-    ul.tab-container.tabs
-      li.tab General
-      li.tab.active Developers
-      li.tab Product
-    div.main-wrapper
-      div.tab-content.main-container
-        p.topic Ready to bro down and crush some code!?
-        div.chat-lines
+  div.main-container
+    div.top-panel
+      h1.title Grockit
+    div.main-panel
+      ul.tab-container.tabs
+        li.tab General
+        li.tab.active Developers
+        li.tab Product
+      div.tab-content
+        p.topic This is a pretty long paragraph. At least I think it is. Hopefully it's long enough that the browser agrees with me and moves it on down to a second line. Awwww yeah.. Nope, that wasn't enough. Thankfully not a whole lot more to make up.
+        div.chat
           p.time 10:30 AM
           p.entrance &rarr; Shane W. joined the room.
           p.message
@@ -54,24 +55,28 @@ block content
             span.name Mike H.
             span.line
               img(src='http://whateverblog.dallasnews.com/files/2012/12/Grumpy-Cat-MEME-01.jpg')
-    div.users-container
-      p Users
+    div.side-panel
+      p.section Users
       ul.user-list
         li.present
-          img.status-orb(src="/images/orb_green.png")
-          strong Brandon T.&nbsp;
-          span.status ( ╯°□°）╯︵ buoןɟ
+          div.name
+            img.status-orb(src="/images/orb_green.png")
+            strong Brandon T.&nbsp;
+          div.status ( ╯°□°）╯︵ buoןɟ
         li.idle
-          img.status-orb(src="/images/orb_yellow.png")
-          | Shane W.
+          div.name
+            img.status-orb(src="/images/orb_yellow.png")
+            | Shane W.
         li.present
-          img.status-orb(src="/images/orb_green.png")
-          | Mike H.
+          div.name
+            img.status-orb(src="/images/orb_green.png")
+            | Mike H.
         li.away
-          img.status-orb(src="/images/orb_red.png")
-          | Tiem S.&nbsp;
-          span.status grabbing lunch
-      p Files
-    div.input-panel
+          div.name
+            img.status-orb(src="/images/orb_red.png")
+            | Tiem S.&nbsp;
+          div.status grabbing lunch
+      p.section Files
+    div.bottom-panel
       textarea.input(placeholder='Say something...')
       button Send
