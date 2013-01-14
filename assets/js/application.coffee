@@ -38,8 +38,10 @@ app.controller 'ChatController', ['$scope', 'Visibility', 'Tinycon', ($scope, Vi
     if Visibility.hidden() || !$scope.scroller.enabled
       $scope.unreadCount++
 
-  $scope.resetScrolling = ->
-    $scope.scroller.enabled = true
+  $scope.$watch 'scroller.enabled', (value) ->
+    resetScrolling() if value == true
+
+  resetScrolling = ->
     $scope.scroller.needsScroll = true
     $scope.unreadCount = 0
 

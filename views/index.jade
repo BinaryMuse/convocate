@@ -18,7 +18,7 @@ block content
         li.tab Lobby
         li.tab.active General
       div.tab-content
-        span(ng-show='!scroller.scrolling && !scroller.enabled', ng-click='resetScrolling()', style='position: absolute; top: 25px; right: 25px; cursor: pointer; z-index: 50;') &#9660;
+        span(ng-show='!scroller.scrolling && !scroller.enabled', ng-click='scroller.enabled = true', style='position: absolute; top: 25px; right: 25px; cursor: pointer; z-index: 50;') &#9660;
         p.topic Convocate!
         div.chat(scroll-to-bottom='scroller.needsScroll', scrolling-enabled='scroller.enabled', scrolling='scroller.scrolling')
           span(ng-repeat="chat in chats", ng-switch="chat.type", ng-class-even="'alt'")
