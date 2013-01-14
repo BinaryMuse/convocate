@@ -62,6 +62,7 @@ app.controller 'ChatController', ['$scope', 'Visibility', 'Tinycon', ($scope, Vi
     $scope.$apply()
 
   $scope.submitMessage = ->
+    return if $scope.message.trim() == ""
     socket.emit 'room:chat', $scope.message
     $scope.chats.push
       username: $scope.username
