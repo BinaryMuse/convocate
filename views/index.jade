@@ -20,7 +20,7 @@ block content
         li.tab Product
       div.tab-content
         p.topic You ready to bro down and crush some code!?
-        div.chat
+        div.chat(scroll-to-bottom='needsScroll')
           span(ng-repeat="chat in chats", ng-switch="chat.type", ng-class-even="'alt'")
             p.time(ng-switch-when="time") {{chat.time}}
             p.entrance(ng-switch-when="entrance") &rarr; {{chat.username}} joined the room.
