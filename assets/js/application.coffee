@@ -12,7 +12,11 @@ app.controller 'ChatController', ['$scope', 'Visibility', 'Tinycon', ($scope, Vi
   $scope.users = []
   $scope.chats = []
   $scope.unreadCount = 0
-  $scope.needsScroll = false
+  $scope.scroller = {
+    needsScroll: false
+    enabled: true
+    scrolling: false
+  }
 
   $scope.$watch 'unreadCount', (value) ->
     Tinycon.setBubble(value) if angular.isNumber(value)
@@ -21,7 +25,7 @@ app.controller 'ChatController', ['$scope', 'Visibility', 'Tinycon', ($scope, Vi
         window.fluid.dockBadge = ""
       else
         window.fluid.dockBadge = "#{value}"
-        window.fluid.requestUserAttention(true)
+        window.fluid.requestUserAttention(false)
 
   Visibility.change ->
     if !Visibility.hidden()
@@ -30,9 +34,14 @@ app.controller 'ChatController', ['$scope', 'Visibility', 'Tinycon', ($scope, Vi
 
   notify = ->
     $scope.chats.shift() if $scope.chats.length > 1000
-    $scope.needsScroll = true
-    if Visibility.hidden()
+    $scope.scroller.needsScroll = true
+    if Visibility.hidden() || !$scope.scroller.enabled
       $scope.unreadCount++
+
+  $scope.resetScrolling = ->
+    $scope.scroller.enabled = true
+    $scope.scroller.needsScroll = true
+    $scope.unreadCount = 0
 
   socket = io.connect()
 
@@ -96,16 +105,41 @@ app.filter 'nl2br', ->
 
 app.directive 'scrollToBottom', ($parse, $timeout) ->
   link: (scope, elem, attrs) ->
-    getter = $parse attrs.scrollToBottom
-    setter = getter.assign
+    setNeedsScrolling = $parse(attrs.scrollToBottom).assign
+    setScrollingEnabled = $parse(attrs.scrollingEnabled).assign
+    setScrolling = $parse(attrs.scrolling).assign
 
-    scope.$watch attrs.scrollToBottom, (value) ->
-      if !!value
+    needsScrolling = false
+    scrollingEnabled = false
+    timeout = null
+
+    go = ->
+      if needsScrolling && scrollingEnabled
         $timeout (->
           pos = elem[0].scrollHeight
-          elem.animate({scrollTop: pos}, 250)
-          setter(scope, false)
+          setScrolling(scope, true)
+          $timeout.cancel(timeout) if timeout?
+          elem.stop().animate({scrollTop: pos}, 250)
+          setNeedsScrolling(scope, false)
+          timeout = $timeout (-> setScrolling(scope, false)), 250
         ), 0
+
+    scope.$watch attrs.scrollToBottom, (value) ->
+      needsScrolling = !!value
+      go()
+
+    scope.$watch attrs.scrollingEnabled, (value) ->
+      scrollingEnabled = !!value
+      go()
+
+    elem.on 'scroll', (evt) ->
+      scroll = elem.scrollTop() + elem.height()
+      height = elem[0].scrollHeight
+      if Math.abs(height - scroll) < 10
+        setScrollingEnabled(scope, true)
+      else
+        setScrollingEnabled(scope, false)
+      scope.$apply()
 
 app.factory 'Visibility', ->
   visible = true
@@ -131,3 +165,30 @@ app.factory 'Visibility', ->
 
 app.factory 'Tinycon', ->
   tinycon
+
+app.directive 'specialMessage', ($parse, $timeout) ->
+  link: (scope, elem, attrs) ->
+    message = scope.$eval attrs.specialMessage
+    scroller = $parse(attrs.scroller).assign
+    scroll = ->
+      scroller(scope, true)
+      scope.$apply()
+
+    # Tweet
+    if matches = message.match /^https?:\/\/(www.)?twitter\.com\/[^\/]+\/status\/(\d+)/
+      tweetId = matches[2]
+      quote = angular.element('<blockquote>').addClass('twitter-tweet')
+      angular.element('<p>').html('&nbsp;').appendTo(quote)
+      angular.element('<a>').prop('href', "https://twitter.com/twitterapi/status/#{tweetId}").appendTo(quote)
+      quote.appendTo(elem)
+      twttr.widgets.load()
+      scroll()
+
+    # Image
+    if message.match /^https?:\/\/.*$/
+      img = angular.element('<img>')
+      img.load ->
+        link = angular.element('<a>').prop('href', message).prop('target', '_blank').append(img)
+        elem.append link
+        scroll()
+      img.attr 'src', message

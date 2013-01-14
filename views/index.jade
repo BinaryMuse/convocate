@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  script(src='//platform.twitter.com/widgets.js')
   div.main-container(ng-controller='ChatController')
     div.settings-panel
       | Logged in as&nbsp;
@@ -11,23 +12,24 @@ block content
       a(href='/logout') Logout
 
     div.top-panel
-      h1.title Grockit
+      h1.title Convocate
     div.main-panel
       ul.tab-container.tabs
         li.tab Lobby
-        li.tab General
-        li.tab.active Developers
-        li.tab Product
+        li.tab.active General
       div.tab-content
-        p.topic You ready to bro down and crush some code!?
-        div.chat(scroll-to-bottom='needsScroll')
+        span(ng-show='!scroller.scrolling && !scroller.enabled', ng-click='resetScrolling()', style='position: absolute; top: 25px; right: 25px; cursor: pointer; z-index: 50;') &#9660;
+        p.topic Convocate!
+        div.chat(scroll-to-bottom='scroller.needsScroll', scrolling-enabled='scroller.enabled', scrolling='scroller.scrolling')
           span(ng-repeat="chat in chats", ng-switch="chat.type", ng-class-even="'alt'")
-            p.time(ng-switch-when="time") {{chat.time}}
-            p.entrance(ng-switch-when="entrance") &rarr; {{chat.username}} joined the room.
-            p.entrance(ng-switch-when="exit") &larr; {{chat.username}} left the room.
-            p.message(ng-switch-default)
+            div.time(ng-switch-when="time") {{chat.time}}
+            div.entrance(ng-switch-when="entrance") &rarr; {{chat.username}} joined the room.
+            div.entrance(ng-switch-when="exit") &larr; {{chat.username}} left the room.
+            div.message(ng-switch-default)
               span.name(ng-class="{me: chat.username == username}") {{chat.username}}
-              span.line(ng-bind-html-unsafe='chat.message | sanitize | nl2br')
+              span.line
+                span(ng-bind-html-unsafe='chat.message | sanitize | nl2br')
+                div(special-message='chat.message', scroller='scroller.needsScroll')
     div.side-panel
       p.section Users
       ul.user-list
