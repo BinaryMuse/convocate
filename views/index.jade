@@ -16,7 +16,9 @@ block content
     div.main-panel
       ul.tab-container.tabs
         li.tab Lobby
-        li.tab.active General
+        li.tab.active
+          | General
+          span.unread(ng-show="unreadCount != 0") {{unreadCount}}
       div.tab-content
         span(ng-show='!scroller.scrolling && !scroller.enabled', ng-click='scroller.enabled = true', style='position: absolute; top: 25px; right: 25px; cursor: pointer; z-index: 50;') &#9660;
         p.topic Convocate!
