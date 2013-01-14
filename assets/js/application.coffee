@@ -16,6 +16,12 @@ app.controller 'ChatController', ['$scope', 'Visibility', 'Tinycon', ($scope, Vi
 
   $scope.$watch 'unreadCount', (value) ->
     Tinycon.setBubble(value) if angular.isNumber(value)
+    if window.fluid
+      if !value? || value == 0
+        window.fluid.dockBadge = ""
+      else
+        window.fluid.dockBadge = "#{value}"
+        window.fluid.requestUserAttention(true)
 
   Visibility.change ->
     if !Visibility.hidden()
