@@ -71,13 +71,16 @@ app.filter 'nl2br', ->
     return "" unless str?
     str.replace(/(\n)|(&#10;)/g, "<br>\n")
 
-app.directive 'scrollToBottom', ($parse) ->
+app.directive 'scrollToBottom', ($parse, $timeout) ->
   link: (scope, elem, attrs) ->
     getter = $parse attrs.scrollToBottom
     setter = getter.assign
 
     scope.$watch attrs.scrollToBottom, (value) ->
       if !!value
-        pos = elem[0].scrollHeight
-        elem.animate({scrollTop: pos}, 250)
-        setter(scope, false)
+        $timeout (->
+          pos = elem[0].scrollHeight
+          console.log 'pos', pos
+          elem.animate({scrollTop: pos}, 250)
+          setter(scope, false)
+        ), 0
