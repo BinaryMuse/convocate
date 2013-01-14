@@ -16,11 +16,12 @@ app = express()
 server = http.createServer(app)
 io = sio.listen(server)
 sessionStore = new MemoryStore()
-redisClient = redis.createClient(redisConfig.port, redisConfig.host)
-redisClient.select(redisConfig.database) if redisConfig.database?
-redisClient.on 'error', (err) ->
-  console.error "Error in redisClient:"
-  console.error err
+# redisClient = redis.createClient(redisConfig.port, redisConfig.host)
+# redisClient.select(redisConfig.database) if redisConfig.database?
+# redisClient.on 'error', (err) ->
+#   console.error "Error in redisClient:"
+#   console.error err
+redisClient = null
 chatroom = new Chatroom(redisClient, io)
 
 app.configure ->
